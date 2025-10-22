@@ -114,6 +114,43 @@ Individual pipeline steps are available in the `Separate_Scripts/` directory:
 
 R scripts for downstream analysis are available in the `R_Scripts/` directory.
 
+#### Allelic Proportion Analysis
+
+**Script:** `R_Scripts/allelic_proportion_analysis_depth10.r`
+
+This script analyzes allele proportions from variant calling results. It creates:
+- Histogram/density plots showing the distribution of allele proportions at each genomic site
+- Violin plots comparing the overall ratio of alternative reads for each sample replicate
+
+**Input Data:** The script uses data files from the `Family_size1_allele_proportions_depth10/` directory, including:
+- `*.singletons.per_position_results.tsv` - Per-position allele proportion data
+- `*.singletons.summary_totals.txt` - Summary statistics for each sample
+
+**Usage:**
+1. Ensure you have the required R packages installed (ggplot2, readr, scales, dplyr, ggpubr, cowplot)
+2. Update the data directory path in the script to point to your `Family_size1_allele_proportions_depth10/` folder
+3. Run the script in R or RStudio
+
+#### Variant Genome Analysis
+
+**Script:** `R_Scripts/Haplotypecaller.Variants.Genome.Analysis_singletons.R`
+
+This script performs comprehensive analysis of variants called by GATK HaplotypeCaller. It:
+- Reads VCF files annotated with SnpEff
+- Extracts variant information including Allele Depth (AD), Read Depth (DP), and impact annotations
+- Filters variants based on depth and impact criteria
+- Performs statistical comparisons between samples
+
+**Input Data:** The script uses annotated VCF files from the `Family_size1_annotation/` directory, including:
+- `*.singletons.ann.vcf` - SnpEff-annotated variant files
+- `*.singletons.ann.bed` - BED format annotations
+- `*_singletons_summary.csv` - Summary statistics for variants
+
+**Usage:**
+1. Ensure you have the required R packages installed (vcfR, tidyverse, broom, rstatix, cowplot, plotly, knitr, kableExtra, officer, flextable)
+2. Update the file paths in the script to point to your `Family_size1_annotation/` folder
+3. Run the script in R or RStudio
+
 ## Pipeline Overview
 
 The pipeline performs the following steps:
