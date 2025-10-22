@@ -94,6 +94,10 @@ conda create -n samtools.v1.22 -c bioconda -c conda-forge samtools=1.22.1 -y
 conda create -n STAR -c bioconda -c conda-forge star=2.7.11b -y
 ```
 
+## Data Availability
+
+The fastq.gz files required to run this analysis pipeline will be made available through the Gene Expression Omnibus (GEO). The GEO accession number will be provided soon.
+
 ## Usage
 
 ### Running the Complete Analysis Pipeline
