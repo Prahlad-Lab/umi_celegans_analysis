@@ -4,7 +4,7 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=32
 #SBATCH --job-name="Combined_UMI_Pipeline"
-#SBATCH --output=../stdout/Combined_UMI_Pipeline.out
+#SBATCH --output=../Combined_UMI_Pipeline.out
 #SBATCH --mail-user=Johnny.CruzCorchado@RoswellPark.org
 #SBATCH --mail-type=begin,end
 #SBATCH --partition=general-compute
@@ -87,7 +87,7 @@ echo "--- Finished Step 1: FastQC ---"
 #==============================================================================
 echo "--- Starting Step 2: FastqToUbam ---"
 
-parallel --xapply FastqToSam \
+parallel --xapply gatk FastqToSam \
       SORT_ORDER=unsorted \
       F1=${DIR_SEQS}/{}_R1.subset.fastq.gz  \
       F2=${DIR_SEQS}/{}_R2.subset.fastq.gz \
