@@ -30,7 +30,7 @@ REF_DICT="${DIR_REF_INPUT}/Caenorhabditis_elegans.WBcel235.dna.toplevel.dict"
 REF_GTF_FILE="${DIR_REF_INPUT}/Caenorhabditis_elegans.WBcel235.114.gtf "
 KNOWN_SITES_VCF="${DIR_REF_INPUT}/random_subset.vcf.gz"
 STAR_INDEX="../star_index" # This directory will be created
-PYTHON_SCRIPT_PATH="../Separate_Scripts/calculate_allele_proportions_depth10.py"
+PYTHON_SCRIPT_PATH="../Separate_Scripts/calculate_allele_proportions_depth.py"
 
 # --- Output Directories ---
 BASE_OUTPUT_DIR="../output_subset"
@@ -43,7 +43,7 @@ DIR_FILTER_BAM="${BASE_OUTPUT_DIR}/FilterBambyFamilySizeGenome"
 DIR_HAPLOTYPE_CALLER="${BASE_OUTPUT_DIR}/Family_size1_haplotype_caller"
 DIR_ANNOTATION="${BASE_OUTPUT_DIR}/Family_size1_annotation"
 DIR_BCFTOOLS_PILEUP="${BASE_OUTPUT_DIR}/Family_size1_bcftools_mpileup"
-DIR_ALLELE_PROPORTIONS="${BASE_OUTPUT_DIR}/Family_size1_allele_proportions_depth10"
+DIR_ALLELE_PROPORTIONS="${BASE_OUTPUT_DIR}/Family_size1_allele_proportions_depth"
 
 
 # --- Sample Array ---
@@ -408,7 +408,7 @@ do
     snpEff WBcel235.105 -stats ${DIR_ANNOTATION}/"${i}"_singleton_summary.html ${DIR_HAPLOTYPE_CALLER}/"${i}".singletons.first.vcf.gz > ${DIR_ANNOTATION}/"${i}".singletons.ann.vcf
 
     # Generate additional BED annotation and CSV stats
-    snpEff ann WBcel2D.105 -csvStats ${DIR_ANNOTATION}/"${i}"_singletons_summary.csv -o bedANN ${DIR_HAPLOTYPE_CALLER}/"${i}".singletons.first.vcf.gz > ${DIR_ANNOTATION}/"${i}".singletons.ann.bed
+    snpEff ann WBcel235.105 -csvStats ${DIR_ANNOTATION}/"${i}"_singletons_summary.csv -o bedANN ${DIR_HAPLOTYPE_CALLER}/"${i}".singletons.first.vcf.gz > ${DIR_ANNOTATION}/"${i}".singletons.ann.bed
 done
 echo "--- Finished PATH A, Step 13 ---"
 
@@ -444,7 +444,7 @@ do
     python ${PYTHON_SCRIPT_PATH} \
         ${DIR_BCFTOOLS_PILEUP}/"${i}".singletons.bcftools.pileup \
         ${DIR_ALLELE_PROPORTIONS}/"${i}".singletons.per_position_results.tsv \
-        ${DIR_ALLELE_PROPORTIONS}/"${i}".singletons.summary_totals.txt
+        ${DIR_ALLELE_PROPORTIONS}/"${i}".singletons.summary_totals.txt --min-depth 2
 done
 echo "--- Finished PATH B, Step 15 ---"
 
