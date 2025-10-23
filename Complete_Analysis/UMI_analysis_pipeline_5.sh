@@ -24,13 +24,11 @@ echo "--- Pipeline started at $(date) ---"
 
 # --- Input/Reference ---
 DIR_SEQS="../Sample_Fastq"
-DIR_REF_INPUT="../input_broad"
-DIR_VCF_INPUT="../input_broad"
-
+DIR_REF_INPUT="../input"
 REF_GENOME="${DIR_REF_INPUT}/Caenorhabditis_elegans.WBcel235.dna.toplevel.fa"
 REF_DICT="${DIR_REF_INPUT}/Caenorhabditis_elegans.WBcel235.dna.toplevel.dict"
 REF_GTF_FILE="${DIR_REF_INPUT}/Caenorhabditis_elegans.WBcel235.114.gtf "
-KNOWN_SITES_VCF="${DIR_VCF_INPUT}/CB4856.hard-filter.vcf.gz"
+KNOWN_SITES_VCF="${DIR_REF_INPUT}/random_subset.vcf.gz"
 STAR_INDEX="../star_index" # This directory will be created
 PYTHON_SCRIPT_PATH="../Separate_Scripts/calculate_allele_proportions_depth10.py"
 
