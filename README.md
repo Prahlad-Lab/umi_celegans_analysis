@@ -2,6 +2,164 @@
 
 This repository contains scripts and tools for analyzing UMI (Unique Molecular Identifier) data from *C. elegans* samples.
 
+## Getting Started
+
+### Step 1: Clone the Repository
+
+Clone this repository to your local machine:
+
+```bash
+git clone https://github.com/Prahlad-Lab/umi_celegans_analysis.git
+```
+
+### Step 2: Navigate to the Repository Directory
+
+Change directory to the cloned repository:
+
+```bash
+cd umi_celegans_analysis
+```
+
+### Step 3: Extract Input Files
+
+The repository includes compressed input files that need to be extracted before running the analysis:
+
+```bash
+cd input
+tar -xzvf inputs.tar.gz
+cd ..
+```
+
+This will extract the reference genome files and other required input data.
+
+### Step 4: Set Up Conda Environments
+
+Return to the main repository folder and set up the required conda environments. You have two options:
+
+**Option 1: Combined Environment (Recommended for Simple Setup)**
+
+```bash
+./setup_conda_environments.sh all
+```
+
+This creates a single environment called `umi_celegans_analysis` with all tools. Activate it with:
+
+```bash
+conda activate umi_celegans_analysis
+```
+
+**Option 2: Separate Environments (Matches Pipeline Structure)**
+
+```bash
+./setup_conda_environments.sh separate
+```
+
+This creates individual environments for each tool (fastqc, bcftools, umi_tools, gatk4, fgbio, snpeff, samtools.v1.22, STAR).
+
+### Step 5: Run the Analysis Pipeline
+
+The main analysis pipeline is `UMI_analysis_pipeline_5.sh`. This script performs the complete UMI-based variant calling analysis.
+
+**What the pipeline does:**
+- Quality control (FastQC)
+- Converts FastQ to unmapped BAM
+- Extracts UMIs from reads
+- Aligns reads using STAR
+- Groups reads by UMI
+- Filters BAMs by family size
+- Performs variant calling with GATK HaplotypeCaller
+- Annotates variants with SnpEff
+- Calculates allele proportions
+
+**Output folders created:**
+The pipeline creates an `output_subset` directory with the following subdirectories:
+- `fastqc/` - Quality control reports
+- `FastqToUbam/` - Unmapped BAM files
+- `ExtractUmisFromBam/` - UMI-extracted BAM files
+- `STARNoClip/` - STAR alignment outputs
+- `UMIAwareDuplicateMarkingGenomeNoClip/` - UMI-grouped BAM files
+- `FilterBambyFamilySizeGenome/` - Family-size filtered BAM files
+- `Family_size1_haplotype_caller/` - GATK variant calling outputs
+- `Family_size1_annotation/` - SnpEff annotated variants
+- `Family_size1_bcftools_mpileup/` - bcftools pileup results
+- `Family_size1_allele_proportions_depth/` - Allele proportion calculations
+
+**To run the pipeline:**
+
+```bash
+# Activate the conda environment
+conda activate umi_celegans_analysis
+
+# Run the pipeline
+./UMI_analysis_pipeline_5.sh
+```
+
+**Note:** This pipeline is designed to run on an HPC cluster with SLURM. If running locally, you may need to remove or modify the SLURM directives at the top of the script.
+
+**Testing Information:** The main pipeline was tested with UB CCR (University at Buffalo Center for Computational Research), using 32 cores and 100GB of memory, with a runtime of 9:44 minutes.
+
+### Step 6: Set Up R Environment for Variant Analysis
+
+To perform downstream variant analysis using R scripts, you need to set up an R environment with the required packages:
+
+```bash
+./setup_conda_r_variant_analysis.sh
+```
+
+This creates a conda environment called `r_variant_analysis` with all necessary R packages including:
+- tidyverse, scales, ggpubr, cowplot for data manipulation and visualization
+- vcfR for VCF file handling
+- rstatix for statistical analysis
+- Bioconductor packages (rtracklayer, plyranges)
+
+Activate the R environment:
+
+```bash
+conda activate r_variant_analysis
+```
+
+### Step 7: Run R Analysis Scripts
+
+The `R_Scripts/` directory contains scripts for downstream analysis:
+
+**1. Allelic Proportion Analysis** (`R_Scripts/allelic_proportion_analysis_depth.r`)
+
+This script analyzes allele proportions from variant calling results and creates visualization plots.
+
+```bash
+# Activate the R environment
+conda activate r_variant_analysis
+
+# Run the R script
+Rscript R_Scripts/allelic_proportion_analysis_depth.r
+```
+
+Or run interactively in R/RStudio:
+```r
+source("R_Scripts/allelic_proportion_analysis_depth.r")
+```
+
+**Input:** Uses data from `Family_size1_allele_proportions_depth/` directory
+**Output:** Histogram/density plots and violin plots showing allele proportion distributions
+
+**2. Variant Genome Analysis** (`R_Scripts/Haplotypecaller.Variants.Genome.Analysis_singletons.R`)
+
+This script performs comprehensive analysis of variants called by GATK HaplotypeCaller.
+
+```bash
+# Activate the R environment
+conda activate r_variant_analysis
+
+# Run the R script in R/RStudio
+R
+> source("R_Scripts/Haplotypecaller.Variants.Genome.Analysis_singletons.R")
+```
+
+**Input:** Uses annotated VCF files from `Family_size1_annotation/` directory
+**Output:** Variant analysis results, statistical comparisons, and visualizations
+
+**Note:** You may need to update file paths in the R scripts to match your output directory structure.
+
 ## Prerequisites
 
 Before running the analysis pipeline, you need to install the required bioinformatics tools using conda.
@@ -21,60 +179,18 @@ The pipeline requires the following tools from the bioconda channel:
 
 ## Installation
 
-### Step 1: Install Conda
+### Conda Installation
 
 If you don't have conda installed, download and install Miniconda or Anaconda:
 
 - **Miniconda**: https://docs.conda.io/en/latest/miniconda.html
 - **Anaconda**: https://www.anaconda.com/products/distribution
 
-### Step 2: Set Up Conda Environments
+For detailed setup instructions, see the [Getting Started](#getting-started) section above.
 
-We provide two options for setting up the required tools:
+### Alternative Manual Installation
 
-#### Option 1: Combined Environment (Recommended for Simple Setup)
-
-Create a single conda environment with all tools:
-
-```bash
-./setup_conda_environments.sh all
-```
-
-This creates an environment called `umi_celegans_analysis` with all tools. Activate it with:
-
-```bash
-conda activate umi_celegans_analysis
-```
-
-#### Option 2: Separate Environments (Matches Pipeline Structure)
-
-Create separate environments for each tool (as used in the pipeline scripts):
-
-```bash
-./setup_conda_environments.sh separate
-```
-
-This creates individual environments:
-- `fastqc`
-- `bcftools`
-- `umi_tools`
-- `gatk4`
-- `fgbio`
-- `snpeff`
-- `samtools.v1.22`
-- `STAR`
-
-Activate each as needed:
-
-```bash
-conda activate fastqc
-conda activate gatk4
-# etc.
-```
-
-### Manual Installation
-
-Alternatively, you can manually create the environment using the provided YAML file:
+You can also manually create the environment using the provided YAML file:
 
 ```bash
 conda env create -f environment.yml
@@ -100,60 +216,16 @@ The fastq.gz files required to run this analysis pipeline will be made available
 
 ## Usage
 
-### Running the Complete Analysis Pipeline
+For complete setup and usage instructions, see the [Getting Started](#getting-started) section above.
 
-The complete analysis pipeline is available in:
-- `Complete_Analysis/UMI_analysis_pipeline_2.sh`
+### Running Individual Pipeline Steps
 
-### Running Individual Steps
-
-Individual pipeline steps are available in the `Separate_Scripts/` directory:
+Individual pipeline steps are available in the `Separate_Scripts/` directory if you need to run specific parts of the analysis:
 - `task.FastqToUbam.sh` - Convert FastQ to unmapped BAM
 - `task.ExtractUMIs.sh` - Extract UMIs from BAM files
 - `task.STARNoClip.sh` - STAR alignment
 - `task.GroupByUMIsGenomeneClip.sh` - Group reads by UMI
 - And more...
-
-### Analysis Scripts
-
-R scripts for downstream analysis are available in the `R_Scripts/` directory.
-
-#### Allelic Proportion Analysis
-
-**Script:** `R_Scripts/allelic_proportion_analysis_depth10.r`
-
-This script analyzes allele proportions from variant calling results. It creates:
-- Histogram/density plots showing the distribution of allele proportions at each genomic site
-- Violin plots comparing the overall ratio of alternative reads for each sample replicate
-
-**Input Data:** The script uses data files from the `Family_size1_allele_proportions_depth10/` directory, including:
-- `*.singletons.per_position_results.tsv` - Per-position allele proportion data
-- `*.singletons.summary_totals.txt` - Summary statistics for each sample
-
-**Usage:**
-1. Ensure you have the required R packages installed (ggplot2, readr, scales, dplyr, ggpubr, cowplot)
-2. Update the data directory path in the script to point to your `Family_size1_allele_proportions_depth10/` folder
-3. Run the script in R or RStudio
-
-#### Variant Genome Analysis
-
-**Script:** `R_Scripts/Haplotypecaller.Variants.Genome.Analysis_singletons.R`
-
-This script performs comprehensive analysis of variants called by GATK HaplotypeCaller. It:
-- Reads VCF files annotated with SnpEff
-- Extracts variant information including Allele Depth (AD), Read Depth (DP), and impact annotations
-- Filters variants based on depth and impact criteria
-- Performs statistical comparisons between samples
-
-**Input Data:** The script uses annotated VCF files from the `Family_size1_annotation/` directory, including:
-- `*.singletons.ann.vcf` - SnpEff-annotated variant files
-- `*.singletons.ann.bed` - BED format annotations
-- `*_singletons_summary.csv` - Summary statistics for variants
-
-**Usage:**
-1. Ensure you have the required R packages installed (vcfR, tidyverse, broom, rstatix, cowplot, plotly, knitr, kableExtra, officer, flextable)
-2. Update the file paths in the script to point to your `Family_size1_annotation/` folder
-3. Run the script in R or RStudio
 
 ## Pipeline Overview
 
