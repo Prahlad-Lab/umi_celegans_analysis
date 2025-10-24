@@ -96,6 +96,8 @@ conda activate umi_celegans_analysis
 
 **Note:** This pipeline is designed to run on an HPC cluster with SLURM. If running locally, you may need to remove or modify the SLURM directives at the top of the script.
 
+**Testing Information:** The main pipeline was tested with UB CCR (University at Buffalo Center for Computational Research), using 32 cores and 100GB of memory, with a runtime of 9:44 minutes.
+
 ### Step 6: Set Up R Environment for Variant Analysis
 
 To perform downstream variant analysis using R scripts, you need to set up an R environment with the required packages:
