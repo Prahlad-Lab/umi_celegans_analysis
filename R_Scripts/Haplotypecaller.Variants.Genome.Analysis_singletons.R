@@ -42,13 +42,8 @@ rm(list = ls())
 # 
 # ```{r,warning=F,message=FALSE}
 # 
-library(extrafont)
-library(cowplot)
-library(ggplot2)
-library(plotly)
-library(ggpubr)
-library(ggprism)
-loadfonts(device = "win")
+
+#loadfonts(device = "win")
 # plotting theme
 old <- theme_set(theme_cowplot(font_size = 12,font_family = "Arial"))
 # 
@@ -68,39 +63,87 @@ old <- theme_set(theme_cowplot(font_size = 12,font_family = "Arial"))
 # Version 43: Changed SnpEff rate calculations to normalize by total read depth.
 
 # --- 1. SETUP: Install and Load Required Packages ---
+# --- 1. SETUP: Install and Load Required Packages ---
 
-# Install packages if you haven't already
-# install.packages("vcfR")
-# install.packages("tidyverse")
-# install.packages("broom")
-# install.packages("rstatix")
-# install.packages("cowplot")
-# install.packages("plotly")
-# install.packages("rtracklayer")
-# install.packages("plyranges")
-# install.packages("knitr")
-# install.packages("kableExtra")
-# install.packages("officer")
-# install.packages("flextable")
+# Define required packages from CRAN
+cran_packages <- c(
+  "extrafont", 
+  "cowplot", 
+  "ggplot2", 
+  "plotly", 
+  "ggpubr", 
+  "ggprism",
+  "vcfR", 
+  "tidyverse", 
+  "broom", 
+  "rstatix", 
+  "knitr", 
+  "kableExtra", 
+  "officer", 
+  "flextable"
+)
 
-# Load the libraries
-library(vcfR)
-library(tidyverse)
-library(broom)
-library(rstatix)
-library(cowplot)
-library(plotly)
-library(knitr)
-library(kableExtra)
-library(officer)
-library(flextable)
+# Define required packages from Bioconductor
+bioc_packages <- c(
+  "rtracklayer",  # For importing GTF files
+  "plyranges",    # For genomic range manipulation
+  "GenomicRanges" # Used explicitly with ::width
+)
+
+# --- Install CRAN Packages ---
+# Check for and install any missing CRAN packages
+missing_cran <- cran_packages[!cran_packages %in% installed.packages()[,"Package"]]
+if (length(missing_cran) > 0) {
+  cat("Installing missing CRAN packages:", paste(missing_cran, collapse=", "), "\n")
+  install.packages(missing_cran)
+}
+
+# --- Install Bioconductor Packages ---
+# First, ensure BiocManager itself is installed
+if (!require("BiocManager", quietly = TRUE)) {
+  cat("Installing BiocManager...\n")
+  install.packages("BiocManager")
+}
+
+# Check for and install any missing Bioconductor packages
+missing_bioc <- bioc_packages[!bioc_packages %in% installed.packages()[,"Package"]]
+if (length(missing_bioc) > 0) {
+  cat("Installing missing Bioconductor packages:", paste(missing_bioc, collapse=", "), "\n")
+  BiocManager::install(missing_bioc)
+}
+
+# --- Load All Libraries ---
+cat("Loading all required libraries...\n")
+suppressPackageStartupMessages({
+  library(extrafont)
+  library(cowplot)
+  library(ggplot2)
+  library(plotly)
+  library(ggpubr)
+  library(ggprism)
+  library(vcfR)
+  library(tidyverse)
+  library(broom)
+  library(rstatix)
+  library(knitr)
+  library(kableExtra)
+  library(officer)
+  library(flextable)
+  library(rtracklayer)
+  library(plyranges)
+  library(GenomicRanges)
+})
+
+cat("All packages installed and loaded successfully.\n")
+
+# --- End of Setup ---
 
 
 # --- 2. DATA LOADING: Define File Paths ---
 
 # IMPORTANT: Replace these with the actual paths to your VCF files.
-n2_files <- c("../Data/Broad/Family_size1_annotation/N2.30min.HS.1.singletons.ann.vcf", "../Data/Broad/Family_size1_annotation/N2.30min.HS.2.singletons.ann.vcf", "../Data/Broad/Family_size1_annotation/N2.30min.HS.3.singletons.ann.vcf")
-prde1_files <-  c("../Data/Broad/Family_size1_annotation/PRDE1.30min.HS.1.singletons.ann.vcf", "../Data/Broad/Family_size1_annotation/PRDE1.30min.HS.2.singletons.ann.vcf", "../Data/Broad/Family_size1_annotation/PRDE1.30min.HS.3.singletons.ann.vcf")
+n2_files <- c("../Family_size1_annotation/N2.30min.HS.1.singletons.ann.vcf", "../Family_size1_annotation/N2.30min.HS.2.singletons.ann.vcf", "../Family_size1_annotation/N2.30min.HS.3.singletons.ann.vcf")
+prde1_files <-  c("../Family_size1_annotation/PRDE1.30min.HS.1.singletons.ann.vcf", "../Family_size1_annotation/PRDE1.30min.HS.2.singletons.ann.vcf", "../Family_size1_annotation/PRDE1.30min.HS.3.singletons.ann.vcf")
 
 # Check if files exist to prevent errors
 all_files <- c(n2_files, prde1_files)
@@ -357,7 +400,7 @@ print(stat_test_lof_rate)
 cat("\n--- Setting up Analysis by Gene Length Quantile ---\n")
 
 # 8A. Load GTF and Define Gene Quantiles
-gtf <- rtracklayer::import(con = "../../Github.Sehee.paper/Data/input/Caenorhabditis_elegans.WBcel235.111.gtf.gz")
+gtf <- rtracklayer::import(con = "../input/Caenorhabditis_elegans.WBcel235.114.gtf.gz")
 
 protein_coding_genes <- gtf |> plyranges::filter(gene_biotype == "protein_coding") |> plyranges::filter(type == "gene")
 
@@ -808,7 +851,7 @@ display_and_save_outputs <- function(df, caption, filename_base, dir) {
 }
 
 # --- Define Output Directories ---
-output_dir <- "Y:/Johnny/Roswell_Projects/Sehee_mRNA_piRNA/Github.Sehee.paper/Data/output/UMI_data/Haplotype_Caller_variants"
+output_dir <- "../output/Haplotype_Caller_variants"
 tables_dir <- file.path(output_dir, "tables")
 if (!dir.exists(tables_dir)) dir.create(tables_dir, recursive = TRUE)
 
@@ -831,7 +874,7 @@ display_and_save_outputs(quantile_error_rate_data, "Quantile Global Error Rate",
 # --- 9. SAVE ALL RESULTS ---
 
 # --- Define Output Directories ---
-output_dir <- "Y:/Johnny/Roswell_Projects/Sehee_mRNA_piRNA/Github.Sehee.paper/Data/output/UMI_data/Haplotype_Caller_variants"
+output_dir <- "../output/Haplotype_Caller_variants"
 tables_dir <- file.path(output_dir, "tables")
 stat_test_dir <- file.path(output_dir, "stat_test")
 figures_dir <- file.path(output_dir, "figures")
